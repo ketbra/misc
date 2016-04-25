@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>This Misanthropic Neighbor, a Computational Approach</title>
+<!-- 2016-04-24 Sun 21:53 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Matthew Feinberg" />
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  .title  { text-align: center; }
+  .todo   { font-family: monospace; color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #eee; font-family: monospace;
+            padding: 2px; font-size: 80%; font-weight: normal; }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  { margin-left: auto; margin-right: 0px;  text-align: right; }
+  .left   { margin-left: 0px;  margin-right: auto; text-align: left; }
+  .center { margin-left: auto; margin-right: auto; text-align: center; }
+  .underline { text-decoration: underline; }
+  #postamble p, #preamble p { font-size: 90%; margin: .2em; }
+  p.verse { margin-left: 3%; }
+  pre {
+    border: 1px solid #ccc;
+    box-shadow: 3px 3px 3px #eee;
+    padding: 8pt;
+    font-family: monospace;
+    overflow: auto;
+    margin: 1.2em;
+  }
+  pre.src {
+    position: relative;
+    overflow: visible;
+    padding-top: 1.2em;
+  }
+  pre.src:before {
+    display: none;
+    position: absolute;
+    background-color: white;
+    top: -10px;
+    right: 10px;
+    padding: 3px;
+    border: 1px solid black;
+  }
+  pre.src:hover:before { display: inline;}
+  pre.src-sh:before    { content: 'sh'; }
+  pre.src-bash:before  { content: 'sh'; }
+  pre.src-emacs-lisp:before { content: 'Emacs Lisp'; }
+  pre.src-R:before     { content: 'R'; }
+  pre.src-perl:before  { content: 'Perl'; }
+  pre.src-java:before  { content: 'Java'; }
+  pre.src-sql:before   { content: 'SQL'; }
+
+  table { border-collapse:collapse; }
+  caption.t-above { caption-side: top; }
+  caption.t-bottom { caption-side: bottom; }
+  td, th { vertical-align:top;  }
+  th.right  { text-align: center;  }
+  th.left   { text-align: center;   }
+  th.center { text-align: center; }
+  td.right  { text-align: right;  }
+  td.left   { text-align: left;   }
+  td.center { text-align: center; }
+  dt { font-weight: bold; }
+  .footpara:nth-child(2) { display: inline; }
+  .footpara { display: block; }
+  .footdef  { margin-bottom: 1em; }
+  .figure { padding: 1em; }
+  .figure p { text-align: center; }
+  .inlinetask {
+    padding: 10px;
+    border: 2px solid gray;
+    margin: 10px;
+    background: #ffffcc;
+  }
+  #org-div-home-and-up
+   { text-align: right; font-size: 70%; white-space: nowrap; }
+  textarea { overflow-x: auto; }
+  .linenr { font-size: smaller }
+  .code-highlighted { background-color: #ffff00; }
+  .org-info-js_info-navigation { border-style: none; }
+  #org-info-js_console-label
+    { font-size: 10px; font-weight: bold; white-space: nowrap; }
+  .org-info-js_search-highlight
+    { background-color: #ffff00; color: #000000; font-weight: bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="http://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/>
+<link rel="stylesheet" type="text/css" href="http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="http://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.js"></script>
+<script type="text/javascript" src="http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js"></script>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+<script type="text/javascript" src="http://orgmode.org/mathjax/MathJax.js"></script>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+    MathJax.Hub.Config({
+        // Only one of the two following lines, depending on user settings
+        // First allows browser-native MathML display, second forces HTML/CSS
+        //  config: ["MMLorHTML.js"], jax: ["input/TeX"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+        extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js",
+                     "TeX/noUndefined.js"],
+        tex2jax: {
+            inlineMath: [ ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"], ["\\begin{displaymath}","\\end{displaymath}"] ],
+            skipTags: ["script","noscript","style","textarea","pre","code"],
+            ignoreClass: "tex2jax_ignore",
+            processEscapes: false,
+            processEnvironments: true,
+            preview: "TeX"
+        },
+        showProcessingMessages: true,
+        displayAlign: "center",
+        displayIndent: "2em",
+
+        "HTML-CSS": {
+             scale: 100,
+             availableFonts: ["STIX","TeX"],
+             preferredFont: "TeX",
+             webFont: "TeX",
+             imageFont: "TeX",
+             showMathMenu: true,
+        },
+        MMLorHTML: {
+             prefer: {
+                 MSIE:    "MML",
+                 Firefox: "MML",
+                 Opera:   "HTML",
+                 other:   "HTML"
+             }
+        }
+    });
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">This Misanthropic Neighbor, a Computational Approach</h1>
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. The Answer</a></li>
+<li><a href="#sec-2">2. My Original Approach, a Monte Carlo Simulation</a>
+<ul>
+<li><a href="#sec-2-1">2.1. Approach</a></li>
+<li><a href="#sec-2-2">2.2. Sample code for a naive Monte Carlo simulation</a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3. Improving Performance</a>
+<ul>
+<li><a href="#sec-3-1">3.1. Approach</a></li>
+<li><a href="#sec-3-2">3.2. Sample code using recursive function</a></li>
+</ul>
+</li>
+<li><a href="#sec-4">4. Still not good enough, an Even more Efficient Algorithm</a>
+<ul>
+<li><a href="#sec-4-1">4.1. Approach</a></li>
+<li><a href="#sec-4-2">4.2. Sample code using the improved recursive function</a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5. Running the Code and Seeing the Answer</a>
+<ul>
+<li><a href="#sec-5-1">5.1. A Picture is Worth 0.4323 Words</a></li>
+<li><a href="#sec-5-2">5.2. Fracking for Rationals</a></li>
+</ul>
+</li>
+<li><a href="#sec-6">6. Extra Credit</a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> The Answer</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+The answer is 115/266 or as I like to think of it, a wee bit more than 3/7 which is about 43%. 
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> My Original Approach, a Monte Carlo Simulation</h2>
+<div class="outline-text-2" id="text-2">
+</div><div id="outline-container-sec-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Approach</h3>
+<div class="outline-text-3" id="text-2-1">
+<p>
+I program for a living, so when a coworker walked into my office and described the problem as well as what he thought was the answer, I immediately decided to write a Monte Carlo simulation to give me a quick numerical answer.  This allowed me to quickly determine that his answer was not correct.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> Sample code for a naive Monte Carlo simulation</h3>
+<div class="outline-text-3" id="text-2-2">
+<div class="org-src-container">
+
+<pre class="src src-perl"><span style="color: #0000FF;">sub</span> <span style="color: #006699;">getAvailableSpots</span>
+{
+<span style="color: #6434A3;">my</span> (@<span style="color: #BA36A5; text-decoration: underline;">aHouses</span>) = @<span style="color: #BA36A5; text-decoration: underline;">_</span>;
+
+<span style="color: #6434A3;">my</span> @<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpots</span>;
+<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">iHouseCount</span> = scalar(@<span style="color: #BA36A5; text-decoration: underline;">aHouses</span>);
+
+push(@<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpots</span>, 0) <span style="color: #0000FF;">if</span> !$<span style="color: #BA36A5;">aHouses</span>[0] &amp;&amp; !$<span style="color: #BA36A5;">aHouses</span>[1];
+push(@<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpots</span>, $<span style="color: #BA36A5;">iHouseCount</span>-1) <span style="color: #0000FF;">if</span> !$<span style="color: #BA36A5;">aHouses</span>[$<span style="color: #BA36A5;">iHouseCount</span> - 1] &amp;&amp; !$<span style="color: #BA36A5;">aHouses</span>[$<span style="color: #BA36A5;">iHouseCount</span> - 2];
+
+<span style="color: #0000FF;">for</span> (<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">i</span>=1; $<span style="color: #BA36A5;">i</span> &lt; $<span style="color: #BA36A5;">iHouseCount</span> - 1; $<span style="color: #BA36A5;">i</span>++)
+  {
+  <span style="color: #0000FF;">if</span> (!$<span style="color: #BA36A5;">aHouses</span>[$<span style="color: #BA36A5;">i</span>] &amp;&amp; !$<span style="color: #BA36A5;">aHouses</span>[$<span style="color: #BA36A5;">i</span>-1] &amp;&amp; !$<span style="color: #BA36A5;">aHouses</span>[$<span style="color: #BA36A5;">i</span>+1])
+    {
+    push(@<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpots</span>, $<span style="color: #BA36A5;">i</span>);
+    }
+  }
+<span style="color: #0000FF;">return</span> @<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpots</span>;
+}
+
+<span style="color: #0000FF;">for</span> (<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">i</span>=1; $<span style="color: #BA36A5;">i</span>&lt;100; $<span style="color: #BA36A5;">i</span>++)
+  {
+  <span style="color: #8D8D84; font-style: italic;"># Run each "experiment" 100 times</span>
+  <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">iExperimentCount</span> = 100;
+  <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">fResultSum</span> = 0;
+  <span style="color: #0000FF;">for</span> (<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">j</span>=0; $<span style="color: #BA36A5;">j</span>&lt;$<span style="color: #BA36A5;">iExperimentCount</span>; $<span style="color: #BA36A5;">j</span>++)
+    {
+    <span style="color: #6434A3;">my</span> @<span style="color: #BA36A5; text-decoration: underline;">aHouses</span> = map {0} 0..($<span style="color: #BA36A5;">i</span>-1);
+    <span style="color: #0000FF;">while</span> (1)
+      {
+      <span style="color: #6434A3;">my</span> @<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpots</span> = getAvailableSpots(@<span style="color: #BA36A5; text-decoration: underline;">aHouses</span>);
+      <span style="color: #0000FF;">last</span> <span style="color: #0000FF;">if</span> scalar(@<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpots</span>) == 0;
+
+      <span style="color: #8D8D84; font-style: italic;"># Otherwise, occupy an available house</span>
+      <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">iAvailableHouseIndex</span> = int(rand() * scalar(@<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpots</span>));
+      $<span style="color: #BA36A5;">aHouses</span>[$<span style="color: #BA36A5;">aAvailableSpots</span>[$<span style="color: #BA36A5;">iAvailableHouseIndex</span>]] = 1;
+      }
+
+    <span style="color: #8D8D84; font-style: italic;"># Count the occupied spots</span>
+    <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">iOccupiedSpots</span> = 0;
+    map {$<span style="color: #BA36A5;">iOccupiedSpots</span>++ <span style="color: #0000FF;">if</span> $<span style="color: #BA36A5;">_</span>} @<span style="color: #BA36A5; text-decoration: underline;">aHouses</span>;
+    $<span style="color: #BA36A5;">fResultSum</span> += $<span style="color: #BA36A5;">iOccupiedSpots</span>/$<span style="color: #BA36A5;">i</span>;
+    }
+  <span style="color: #8D8D84; font-style: italic;"># Print the results for i number of houses</span>
+  print <span style="color: #008000;">"$i "</span>.($<span style="color: #BA36A5;">fResultSum</span>/$<span style="color: #BA36A5;">iExperimentCount</span>).<span style="color: #008000;">"\n"</span>;
+  }
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Improving Performance</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Approach</h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+The Monte Carlo simulation was slow, so to improve performance and improve my understanding of the problem I modeled the expected value of occupied houses as a recursive function
+\(f(n)\).  \(f(n)\) is the average number of occupied houses for a neighborhood of size \(n\)
+</p>
+
+\begin{equation}
+    f(n)=
+    \begin{cases}
+      0, & \text{if}\ n<=0 \\
+      \frac{1}{n}\sum_{i=1}^{n} 1 + f(i-2) + f(n - i - 1), & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+<p>
+\(p(n)\) is the percent of occupied homes and $$p(n) = 100*\frac{f(n)}{n}$$
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Sample code using recursive function</h3>
+<div class="outline-text-3" id="text-3-2">
+<div class="org-src-container">
+
+<pre class="src src-perl"><span style="color: #0000FF;">use</span> <span style="color: #D0372D;">List</span>::Util qw<span style="color: #008000;">(sum)</span>;
+
+<span style="color: #0000FF;">sub</span> <span style="color: #006699;">memoize</span> {
+  <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">f</span> = shift;
+  <span style="color: #6434A3;">my</span> %<span style="color: #BA36A5; text-decoration: underline;">h</span>;
+  <span style="color: #0000FF;">return</span> <span style="color: #0000FF;">sub</span> {<span style="color: #0000FF;">return</span> $<span style="color: #BA36A5;">h</span>{$<span style="color: #BA36A5;">_</span>[0]} // ($<span style="color: #BA36A5;">h</span>{$<span style="color: #BA36A5;">_</span>[0]} = $<span style="color: #BA36A5;">f</span>-&gt;($<span style="color: #BA36A5;">_</span>[0]))};
+}
+
+<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">f</span>;
+<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">g</span> = <span style="color: #0000FF;">sub</span> {
+  <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">n</span> = shift;
+  $<span style="color: #BA36A5;">n</span> &lt;= 0 ? 0 : (1/$<span style="color: #BA36A5;">n</span>)*<span style="color: #BA36A5;">sum</span>(map {1 + $<span style="color: #BA36A5;">f</span>-&gt;($<span style="color: #BA36A5;">_</span> - 2) + $<span style="color: #BA36A5;">f</span>-&gt;($<span style="color: #BA36A5;">n</span> - $<span style="color: #BA36A5;">_</span> - 1)} 1..$<span style="color: #BA36A5;">n</span>);
+};
+$<span style="color: #BA36A5;">f</span> = memoize($<span style="color: #BA36A5;">g</span>);
+
+<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">p</span> = <span style="color: #0000FF;">sub</span> {<span style="color: #0000FF;">return</span> 100*($<span style="color: #BA36A5;">f</span>-&gt;($<span style="color: #BA36A5;">_</span>[0]))/$<span style="color: #BA36A5;">_</span>[0]};
+
+$<span style="color: #BA36A5;">p</span>-&gt;($<span style="color: #BA36A5;">n</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Still not good enough, an Even more Efficient Algorithm</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> Approach</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+I noticed that I could eliminate the the sum of terms by replacing it with a recursive call to the function for a smaller neighborhood size
+</p>
+
+<p>
+From above
+</p>
+\begin{equation}
+    f(n)=\frac{1}{n}\sum_{i=1}^{n} 1 + f(i-2) + f(n - i - 1) \text{if}\ n<=0
+\end{equation}
+\begin{equation}
+        = 1 + \frac{2}{n}(f(-1) + ... + f(n-2))
+\end{equation}
+
+\begin{equation}
+ f(n+1) = 1 + \frac{2}{n+1}(f(-1) + ... + f(n-1))
+\end{equation}
+
+\begin{equation}
+ \frac{n+1}{n}f(n+1) = \frac{n+1}{n} + \frac{2}{n}(f(-1) + ... + f(n-1))
+\end{equation}
+
+\begin{equation}
+      = \frac{n+1}{n} + [-1 + \frac{2}{n}f(n-1)] + [1 + \frac{2}{n}(f(-1) + ... + f(n-2))]
+\end{equation}
+
+\begin{equation}
+      = \frac{n+1}{n} + [-1 + \frac{2}{n}f(n-1)] + f(n)
+\end{equation}
+
+<p>
+Therefore,
+</p>
+\begin{equation}
+  f(n) = 1 + \frac{2}{n}f(n-2) + \frac{n-1}{n}f(n-1) - \frac{n}{n+1}
+\end{equation}
+
+<p>
+Excellent!  This screams memoization faster than a fibonacci series at a computer science convention.  Now the number of calculations required to calculate the expected number of houses in a neighborhood grows linearly in n.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> Sample code using the improved recursive function</h3>
+<div class="outline-text-3" id="text-4-2">
+<div class="org-src-container">
+
+<pre class="src src-perl" id="percent_filled2"><span style="color: #0000FF;">use</span> <span style="color: #D0372D;">List</span>::Util qw<span style="color: #008000;">(sum)</span>;
+
+<span style="color: #0000FF;">sub</span> <span style="color: #006699;">memoize</span> {
+  <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">f</span> = shift;
+  <span style="color: #6434A3;">my</span> %<span style="color: #BA36A5; text-decoration: underline;">h</span>;
+  <span style="color: #0000FF;">return</span> <span style="color: #0000FF;">sub</span> {<span style="color: #0000FF;">return</span> $<span style="color: #BA36A5;">h</span>{$<span style="color: #BA36A5;">_</span>[0]} // ($<span style="color: #BA36A5;">h</span>{$<span style="color: #BA36A5;">_</span>[0]} = $<span style="color: #BA36A5;">f</span>-&gt;($<span style="color: #BA36A5;">_</span>[0]))};
+}
+
+<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">f</span>;
+<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">g</span> = <span style="color: #0000FF;">sub</span> {
+  <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">n</span> = shift;
+  $<span style="color: #BA36A5;">n</span> &lt;= 0 ? 0 : 1 + (2/$<span style="color: #BA36A5;">n</span>)*$<span style="color: #BA36A5;">f</span>-&gt;($<span style="color: #BA36A5;">n</span>-2) + (($<span style="color: #BA36A5;">n</span>-1)/$<span style="color: #BA36A5;">n</span>)*$<span style="color: #BA36A5;">f</span>-&gt;($<span style="color: #BA36A5;">n</span>-1) -(($<span style="color: #BA36A5;">n</span>-1)/$<span style="color: #BA36A5;">n</span>);
+};
+$<span style="color: #BA36A5;">f</span> = memoize($<span style="color: #BA36A5;">g</span>);
+
+<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">p</span> = <span style="color: #0000FF;">sub</span> {<span style="color: #0000FF;">return</span> 100*($<span style="color: #BA36A5;">f</span>-&gt;($<span style="color: #BA36A5;">_</span>[0]))/$<span style="color: #BA36A5;">_</span>[0]};
+
+$<span style="color: #BA36A5;">p</span>-&gt;($<span style="color: #BA36A5;">n</span>)
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Running the Code and Seeing the Answer</h2>
+<div class="outline-text-2" id="text-5">
+</div><div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> A Picture is Worth 0.4323 Words</h3>
+<div class="outline-text-3" id="text-5-1">
+
+<div class="figure">
+<p><img src="plot.png" alt="plot.png" />
+</p>
+</div>
+
+
+
+<div class="figure">
+<p><img src="plot2.png" alt="plot2.png" />
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2"><span class="section-number-3">5.2</span> Fracking for Rationals</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+Sure, if I didn't have two small children at home, had a full night of sleep once in the last 4 months, or didn't feel like every thought I have resets like that Memento movie, or didn't feel like every thought I have resets like that Memento movie, well then I'd probably try to find the answer analytically.  For now, I'll frack for rationals.  I just programatically multiplied the numerical result for a large neighborhood by increasing integers until something looked good.  After multiplying by 266 I could see that the numerical result was converging to 115/266
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Extra Credit</h2>
+<div class="outline-text-2" id="text-6">
+<p>
+For extra credit, I will simply modify my original Monte Carlo method to allow <b>ANY</b> affinity function between neighbors.  The original problem has an affinity function depends only on the local neighborhood.  This allowed many optimizations to reduce the calculation time, but a more general affinity function may depend on any external state, such as the current season as well as the entire neighborhood instead of just the local neighborhood.  In addition, the general case for the affinity function is to return a different probability for each allowable home.
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-perl"><span style="color: #0000FF;">sub</span> <span style="color: #006699;">getAvailableSpotsDistribution</span>
+  {
+  <span style="color: #6434A3;">my</span> ($<span style="color: #BA36A5;">oExternalState</span>, @<span style="color: #BA36A5; text-decoration: underline;">aHouses</span>) = @<span style="color: #BA36A5; text-decoration: underline;">_</span>;
+  ....
+
+  <span style="color: #0000FF;">return</span> @<span style="color: #BA36A5; text-decoration: underline;">aDistribution</span>; <span style="color: #8D8D84; font-style: italic;"># An array with one entry for each house where the value is the probability of choosing that house</span>
+  }
+
+<span style="color: #0000FF;">for</span> (<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">i</span>=1; $<span style="color: #BA36A5;">i</span>&lt;100; $<span style="color: #BA36A5;">i</span>++)
+  {
+  <span style="color: #8D8D84; font-style: italic;"># Run each "experiment" 100 times</span>
+  <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">iExperimentCount</span> = 100;
+  <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">fResultSum</span> = 0;
+  <span style="color: #0000FF;">for</span> (<span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">j</span>=0; $<span style="color: #BA36A5;">j</span>&lt;$<span style="color: #BA36A5;">iExperimentCount</span>; $<span style="color: #BA36A5;">j</span>++)
+    {
+    <span style="color: #6434A3;">my</span> @<span style="color: #BA36A5; text-decoration: underline;">aHouses</span> = map {0} 0..($<span style="color: #BA36A5;">i</span>-1);
+    <span style="color: #0000FF;">while</span> (1)
+      {
+      <span style="color: #6434A3;">my</span> @<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpotsDistribution</span> = getAvailableSpotsDistribution($<span style="color: #BA36A5;">oExternalState</span>, @<span style="color: #BA36A5; text-decoration: underline;">aHouses</span>);
+      <span style="color: #0000FF;">last</span> <span style="color: #0000FF;">if</span> sum(@<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpotsDistribution</span>) == 0;
+
+      <span style="color: #8D8D84; font-style: italic;"># Otherwise, occupy an available house</span>
+      <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">iAvailableHouseIndex</span> = choose_from_distribution(@<span style="color: #BA36A5; text-decoration: underline;">aAvailableSpotsDistribution</span>);
+      $<span style="color: #BA36A5;">aHouses</span>[$<span style="color: #BA36A5;">aAvailableSpots</span>[$<span style="color: #BA36A5;">iAvailableHouseIndex</span>]] = 1;
+      }
+
+    <span style="color: #8D8D84; font-style: italic;"># Count the occupied spots</span>
+    <span style="color: #6434A3;">my</span> $<span style="color: #BA36A5;">iOccupiedSpots</span> = 0;
+    map {$<span style="color: #BA36A5;">iOccupiedSpots</span>++ <span style="color: #0000FF;">if</span> $<span style="color: #BA36A5;">_</span>} @<span style="color: #BA36A5; text-decoration: underline;">aHouses</span>;
+    $<span style="color: #BA36A5;">fResultSum</span> += $<span style="color: #BA36A5;">iOccupiedSpots</span>/$<span style="color: #BA36A5;">i</span>;
+    }
+  <span style="color: #8D8D84; font-style: italic;"># Print the results for i number of houses</span>
+  print <span style="color: #008000;">"$i "</span>.($<span style="color: #BA36A5;">fResultSum</span>/$<span style="color: #BA36A5;">iExperimentCount</span>).<span style="color: #008000;">"\n"</span>;
+  }
+</pre>
+</div>
+</div>
+</div>
+</div>
+<div id="postamble" class="status">
+<p class="author">Author: Matthew Feinberg</p>
+<p class="date">Created: 2016-04-24 Sun 21:53</p>
+<p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.5.1 (<a href="http://orgmode.org">Org</a> mode 8.2.10)</p>
+<p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
+</div>
+</body>
+</html>

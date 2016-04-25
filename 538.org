@@ -1,0 +1,387 @@
+#+TITLE: This Misanthropic Neighbor, a Computational Approach
+
+# -*- mode: org; -*-
+
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://www.pirilampo.org/styles/readtheorg/css/htmlize.css"/>
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="http://www.pirilampo.org/styles/readtheorg/css/readtheorg.css"/>
+
+#+HTML_HEAD: <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+#+HTML_HEAD: <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+#+HTML_HEAD: <script type="text/javascript" src="http://www.pirilampo.org/styles/lib/js/jquery.stickytableheaders.js"></script>
+#+HTML_HEAD: <script type="text/javascript" src="http://www.pirilampo.org/styles/readtheorg/js/readtheorg.js"></script>
+
+
+#+LaTeX_HEADER: \newcommand\addtag{\refstepcounter{equation}\tag{\theequation}}
+
+* The Answer
+The answer is 115/266 or as I like to think of it, a wee bit more than 3/7 which is about 43%. 
+
+* My Original Approach, a Monte Carlo Simulation
+** Approach
+I program for a living, so when a coworker walked into my office and described the problem as well as what he thought was the answer, I immediately decided to write a Monte Carlo simulation to give me a quick numerical answer.  This allowed me to quickly determine that his answer was not correct.
+
+** Sample code for a naive Monte Carlo simulation
+#+BEGIN_SRC perl :exports code
+
+sub getAvailableSpots
+{
+my (@aHouses) = @_;
+
+my @aAvailableSpots;
+my $iHouseCount = scalar(@aHouses);
+
+push(@aAvailableSpots, 0) if !$aHouses[0] && !$aHouses[1];
+push(@aAvailableSpots, $iHouseCount-1) if !$aHouses[$iHouseCount - 1] && !$aHouses[$iHouseCount - 2];
+
+for (my $i=1; $i < $iHouseCount - 1; $i++)
+  {
+  if (!$aHouses[$i] && !$aHouses[$i-1] && !$aHouses[$i+1])
+    {
+    push(@aAvailableSpots, $i);
+    }
+  }
+return @aAvailableSpots;
+}
+
+for (my $i=1; $i<100; $i++)
+  {
+  # Run each "experiment" 100 times
+  my $iExperimentCount = 100;
+  my $fResultSum = 0;
+  for (my $j=0; $j<$iExperimentCount; $j++)
+    {
+    my @aHouses = map {0} 0..($i-1);
+    while (1)
+      {
+      my @aAvailableSpots = getAvailableSpots(@aHouses);
+      last if scalar(@aAvailableSpots) == 0;
+
+      # Otherwise, occupy an available house
+      my $iAvailableHouseIndex = int(rand() * scalar(@aAvailableSpots));
+      $aHouses[$aAvailableSpots[$iAvailableHouseIndex]] = 1;
+      }
+
+    # Count the occupied spots
+    my $iOccupiedSpots = 0;
+    map {$iOccupiedSpots++ if $_} @aHouses;
+    $fResultSum += $iOccupiedSpots/$i;
+    }
+  # Print the results for i number of houses
+  print "$i ".($fResultSum/$iExperimentCount)."\n";
+  }
+#+END_SRC
+
+* Improving Performance
+** Approach
+
+ The Monte Carlo simulation was slow, so to improve performance and improve my understanding of the problem I modeled the expected value of occupied houses as a recursive function
+$f(n)$.  $f(n)$ is the average number of occupied houses for a neighborhood of size $n$
+
+\begin{equation}
+    f(n)=
+    \begin{cases}
+      0, & \text{if}\ n<=0 \\
+      \frac{1}{n}\sum_{i=1}^{n} 1 + f(i-2) + f(n - i - 1), & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+$$p(n)$$ is the percent of occupied homes and $$p(n) = 100*\frac{f(n)}{n}$$
+
+** Sample code using recursive function
+#+BEGIN_SRC perl :exports code
+use List::Util qw(sum);
+
+sub memoize {
+  my $f = shift;
+  my %h;
+  return sub {return $h{$_[0]} // ($h{$_[0]} = $f->($_[0]))};
+}
+
+my $f;
+my $g = sub {
+  my $n = shift;
+  $n <= 0 ? 0 : (1/$n)*sum(map {1 + $f->($_ - 2) + $f->($n - $_ - 1)} 1..$n);
+};
+$f = memoize($g);
+
+my $p = sub {return 100*($f->($_[0]))/$_[0]};
+
+$p->($n)
+#+END_SRC
+
+* Still not good enough, an Even more Efficient Algorithm
+** Approach
+   I noticed that I could rewrite the sum in the recursive algorithm as a prior term.
+
+   From above
+\begin{equation}
+    f(n)=\frac{1}{n}\sum_{i=1}^{n} 1 + f(i-2) + f(n - i - 1) \text{if}\ n<=0
+\end{equation}
+\begin{equation}
+        = 1 + \frac{2}{n}(f(-1) + ... + f(n-2))
+\end{equation}
+
+\begin{equation}
+ f(n+1) = 1 + \frac{2}{n+1}(f(-1) + ... + f(n-1))
+\end{equation}
+
+\begin{equation}
+ \frac{n+1}{n}f(n+1) = \frac{n+1}{n} + \frac{2}{n}(f(-1) + ... + f(n-1))
+\end{equation}
+
+\begin{equation}
+      = \frac{n+1}{n} + [-1 + \frac{2}{n}f(n-1)] + [1 + \frac{2}{n}(f(-1) + ... + f(n-2))]
+\end{equation}
+
+\begin{equation}
+      = \frac{n+1}{n} + [-1 + \frac{2}{n}f(n-1)] + f(n)
+\end{equation}
+
+Therefore,
+\begin{equation}
+  f(n) = 1 + \frac{2}{n}f(n-2) + \frac{n-1}{n}f(n-1) - \frac{n}{n+1}
+\end{equation}
+
+Excellent!  This screams memoization faster than a fibonacci series at a computer science convention.  Now the number of calculations required to calculate the expected number of houses in a neighborhood grows linearly in n.
+
+** Sample code using the improved recursive function
+#+name: percent_filled2
+#+header: :var n=1
+#+BEGIN_SRC perl :exports code
+use List::Util qw(sum);
+
+sub memoize {
+  my $f = shift;
+  my %h;
+  return sub {return $h{$_[0]} // ($h{$_[0]} = $f->($_[0]))};
+}
+
+my $f;
+my $g = sub {
+  my $n = shift;
+  $n <= 0 ? 0 : 1 + (2/$n)*$f->($n-2) + (($n-1)/$n)*$f->($n-1) -(($n-1)/$n);
+};
+$f = memoize($g);
+
+my $p = sub {return 100*($f->($_[0]))/$_[0]};
+
+$p->($n)
+#+END_SRC
+
+* Running the Code and Seeing the Answer
+** A Picture is Worth 0.4323 Words
+
+ #+BEGIN_SRC perl :exports none :session
+use List::Util qw(sum);
+
+sub memoize {
+  my $f = shift;
+  my %h;
+  return sub {return $h{$_[0]} // ($h{$_[0]} = $f->($_[0]))};
+}
+
+my $f;
+my $g = sub {
+  my $n = shift;
+  $n <= 0 ? 0 : (1/$n)*sum(map {1 + $f->($_ - 2) + $f->($n - $_ - 1)} 1..$n);
+};
+$f = memoize($g);
+
+my $paTable = [['Neighborhood Size', 'Average Percent Filled']];
+
+
+for (my $i=0; $i<19; $i++)
+  {
+  my $n = $i+1;
+  push(@$paTable, [$n, $f->($n)/$n]);
+  }
+
+
+for (my $i=0; $i<40; $i++)
+  {
+  my $n = 20 + ($i * 5);
+  push(@$paTable, [$n, $f->($n)/$n]);
+  }
+
+for (my $i=0; $i<20; $i++)
+  {
+  my $n = 216 + ($i * 100);
+  push(@$paTable, [$n, $f->($n)/$n]);
+  }
+
+# for (my $i=0; $i<20; $i++)
+#   {
+#   my $n = 100*($i + 1);
+#   push(@$paTable, [$n, $f->($n)/$n]);
+#   }
+
+$paTable;
+#$f->(5)/5;
+#[['first', 'second', 'third'],[1,2,3],[4,5,6]]
+#+END_SRC
+
+#+tblname: data-table
+#+RESULTS:
+| Neighborhood Size | Average Percent Filled |
+|                 1 |                      1 |
+|                 2 |                    0.5 |
+|                 3 |      0.555555555555555 |
+|                 4 |                    0.5 |
+|                 5 |      0.493333333333333 |
+|                 6 |      0.481481481481481 |
+|                 7 |      0.474829931972789 |
+|                 8 |      0.469444444444444 |
+|                 9 |      0.465334117185969 |
+|                10 |      0.462031746031746 |
+|                11 |      0.459332138120017 |
+|                12 |       0.45708210856359 |
+|                13 |      0.455178287998801 |
+|                14 |      0.453546435088385 |
+|                15 |      0.452132163401299 |
+|                16 |      0.450894675577215 |
+|                17 |      0.449802774566803 |
+|                18 |      0.448832195889744 |
+|                19 |       0.44796378338933 |
+|                20 |      0.447182212138948 |
+|                25 |      0.444212241387497 |
+|                30 |       0.44223226088653 |
+|                35 |      0.440817989100124 |
+|                40 |      0.439757285260321 |
+|                45 |      0.438932293384918 |
+|                50 |      0.438272299884595 |
+|                55 |      0.437732305202514 |
+|                60 |      0.437282309634111 |
+|                65 |      0.436901544153156 |
+|                70 |      0.436575173740909 |
+|                75 |      0.436292319383628 |
+|                80 |      0.436044821821007 |
+|                85 |      0.435826441618695 |
+|                90 |      0.435632325883306 |
+|                95 |      0.435458643383221 |
+|               100 |      0.435302329133145 |
+|               105 |      0.435160901954504 |
+|               110 |      0.435032331792103 |
+|               115 |      0.434914941643824 |
+|               120 |      0.434807334007903 |
+|               125 |      0.434708334982854 |
+|               130 |      0.434616951267426 |
+|               135 |      0.434532336716102 |
+|               140 |      0.434453766061301 |
+|               145 |       0.43438061407235 |
+|               150 |       0.43431233888266 |
+|               155 |       0.43424846854392 |
+|               160 |       0.43418859010135 |
+|               165 |        0.4341323406553 |
+|               170 |      0.434079400000195 |
+|               175 |      0.434029484525381 |
+|               180 |      0.433982342132499 |
+|               185 |      0.433937747977072 |
+|               190 |      0.433895500882458 |
+|               195 |      0.433855420305516 |
+|               200 |      0.433817343757419 |
+|               205 |      0.433781124601913 |
+|               210 |      0.433746630168099 |
+|               215 |      0.433713740126556 |
+|               216 |      0.433707344840699 |
+|               316 |      0.433272222543546 |
+|               416 |      0.433046293658487 |
+|               516 |      0.432907934108719 |
+|               616 |      0.432814496490695 |
+|               716 |      0.432747158765972 |
+|               816 |      0.432696325385551 |
+|               916 |      0.432656590996477 |
+|              1016 |      0.432624678337551 |
+|              1116 |      0.432598484793122 |
+|              1216 |      0.432576599397428 |
+|              1316 |      0.432558040049744 |
+|              1416 |      0.432542102078832 |
+|              1516 |      0.432528266742598 |
+|              1616 |      0.432516143700481 |
+|              1716 |      0.432505433600303 |
+|              1816 |      0.432495903026591 |
+|              1916 |      0.432487367293557 |
+|              2016 |      0.432479678359456 |
+|              2116 |      0.432472716167692 |
+
+#+begin_src gnuplot :var data=data-table :exports results :file plot.png
+set title "A Bumpy but Quick Convergence"
+
+set xlabel "Neighborhood Size"
+set xrange [0:100]
+set xtics 0,10,100
+
+
+set ylabel "Fraction Filled"
+set yrange [0:1]
+set ytics 0,0.05,1
+
+
+plot data u 1:2 w lp lw 1 notitle
+#+end_src
+
+#+RESULTS:
+[[file:plot.png]]
+
+
+#+begin_src gnuplot :var data=data-table :exports results :file plot2.png
+set title "A Longer View of the Fast Convergence"
+
+set xlabel "Neighborhood Size"
+set xrange [0:2000]
+set xtics 0,500,2000
+
+
+set ylabel "Fraction Filled"
+set yrange [0:1]
+set ytics 0,0.05,1
+
+
+plot data u 1:2 w lp lw 1 notitle
+#+end_src
+
+#+RESULTS:
+[[file:plot2.png]]
+
+** Fracking for Rationals
+Sure, if I didn't have two small children at home, had a full night of sleep once in the last 4 months, or didn't feel like every thought I have resets like that Memento movie, or didn't feel like every thought I have resets like that Memento movie, well then I'd probably try to find the answer analytically.  For now, I'll frack for rationals.  I just programatically multiplied the numerical result for a large neighborhood by increasing integers until something looked good.  After multiplying by 266 I could see that the numerical result was converging to 115/266
+
+* Extra Credit
+For extra credit, I will simply modify my original Monte Carlo method to allow *ANY* affinity function between neighbors.  The original problem has an affinity function depends only on the local neighborhood.  This allowed many optimizations to reduce the calculation time, but a more general affinity function may depend on any external state, such as the current season as well as the entire neighborhood instead of just the local neighborhood.  In addition, the general case for the affinity function is to return a different probability for each allowable home.
+
+#+BEGIN_SRC perl :exports code
+
+sub getAvailableSpotsDistribution
+  {
+  my ($oExternalState, @aHouses) = @_;
+  ....
+
+  return @aDistribution; # An array with one entry for each house where the value is the probability of choosing that house
+  }
+
+for (my $i=1; $i<100; $i++)
+  {
+  # Run each "experiment" 100 times
+  my $iExperimentCount = 100;
+  my $fResultSum = 0;
+  for (my $j=0; $j<$iExperimentCount; $j++)
+    {
+    my @aHouses = map {0} 0..($i-1);
+    while (1)
+      {
+      my @aAvailableSpotsDistribution = getAvailableSpotsDistribution($oExternalState, @aHouses);
+      last if sum(@aAvailableSpotsDistribution) == 0;
+
+      # Otherwise, occupy an available house
+      my $iAvailableHouseIndex = choose_from_distribution(@aAvailableSpotsDistribution);
+      $aHouses[$aAvailableSpots[$iAvailableHouseIndex]] = 1;
+      }
+
+    # Count the occupied spots
+    my $iOccupiedSpots = 0;
+    map {$iOccupiedSpots++ if $_} @aHouses;
+    $fResultSum += $iOccupiedSpots/$i;
+    }
+  # Print the results for i number of houses
+  print "$i ".($fResultSum/$iExperimentCount)."\n";
+  }
+#+END_SRC
